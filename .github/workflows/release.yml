@@ -99,6 +99,5 @@ jobs:
         body_path: changelog.txt
         files: |
           ./Command-Saturation-Protocol-${{ steps.get_version.outputs.VERSION }}.zip
-          ./version.json
         draft: false
         prerelease: false
