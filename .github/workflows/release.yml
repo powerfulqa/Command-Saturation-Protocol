@@ -8,6 +8,8 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     
     steps:
     - name: Checkout code
@@ -88,25 +90,17 @@ jobs:
         echo "Created release package: ${MOD_NAME}.zip"
         ls -la "${MOD_NAME}.zip"
         
-    - name: Create Release
+    - name: Create Release and Upload Assets
       uses: softprops/action-gh-release@v1
-      id: create_release
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: ${{ steps.get_version.outputs.VERSION }}
         name: Command Saturation Protocol ${{ steps.get_version.outputs.VERSION }}
         body_path: changelog.txt
-        draft: false
-        prerelease: false
-        
-    - name: Upload Release Assets
-      uses: softprops/action-gh-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ steps.get_version.outputs.VERSION }}
         files: |
           ./Command-Saturation-Protocol-${{ steps.get_version.outputs.VERSION }}.zip
           ./version.json
           ./changelog.txt
+        draft: false
+        prerelease: false
