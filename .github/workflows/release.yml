@@ -30,8 +30,8 @@ jobs:
         jq --arg major "$MAJOR" --arg minor "$MINOR" --arg patch "$PATCH" \
            --arg version "$VERSION_NUMBER" \
            '.version.major = ($major | tonumber) | .version.minor = ($minor | tonumber) | .version.patch = ($patch | tonumber) | 
-            .masterVersionFile = "https://github.com/powerfulqa/Command-Saturation-Protocol/releases/download/\($version)/version.json" |
-            .changelogURL = "https://github.com/powerfulqa/Command-Saturation-Protocol/releases/download/\($version)/changelog.txt"' \
+            .masterVersionFile = "https://github.com/powerfulqa/Command-Saturation-Protocol/releases/latest/download/version.json" |
+            .changelogURL = "https://github.com/powerfulqa/Command-Saturation-Protocol/releases/latest/download/changelog.txt"' \
            version.json > version.json.tmp && mv version.json.tmp version.json
            
         # Update mod_info.json version
