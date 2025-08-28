@@ -4,6 +4,6 @@
   "author": "PowerfulQA",
   "version": { "major": 0, "minor": 1, "patch": 0 },
   "gameVersion": "0.98a-RC8",
-  "masterVersionFile": "https://github.com/powerfulqa/Command-Saturation-Protocol/releases/latest/download/version.json",
-  "changelogURL": "https://github.com/powerfulqa/Command-Saturation-Protocol/releases/latest/download/changelog.txt"
+  "masterVersionFile": "https://github.com/powerfulqa/Command-Saturation-Protocol/releases/download/v0.1.0/Command-Saturation-Protocol-v0.1.0.zip",
+  "changelogURL": "https://github.com/powerfulqa/Command-Saturation-Protocol/blob/main/CHANGELOG.md"
 }
