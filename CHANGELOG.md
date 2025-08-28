@@ -2,7 +2,7 @@
 
 ## v0.1.0 - Initial release
 
-- Data-only mod that exposes higher caps for battle size and fleet roster.
-- Defaults match vanilla: `maxBattleSize=400`, `minFractionOfBattleSizeForSmallerSide=0.4`, `maxShipsInFleet=30`.
-- Optional LunaLib sliders to adjust values in-game (restart typically required).
+- Data-only mod that increases caps for battle size and fleet roster.
+- Default values: `maxBattleSize=800`, `minFractionOfBattleSizeForSmallerSide=0.4`, `maxShipsInFleet=50`.
+- LunaLib integration shows current settings for reference (edit settings.json to change values).
 

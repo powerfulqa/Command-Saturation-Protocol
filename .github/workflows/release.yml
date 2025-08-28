@@ -1,0 +1,131 @@
+name: Create Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Get version from tag
+      id: get_version
+      run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+      
+    - name: Update version.json
+      run: |
+        VERSION_NUMBER=$(echo "${{ steps.get_version.outputs.VERSION }}" | sed 's/v//')
+        MAJOR=$(echo $VERSION_NUMBER | cut -d. -f1)
+        MINOR=$(echo $VERSION_NUMBER | cut -d. -f2)
+        PATCH=$(echo $VERSION_NUMBER | cut -d. -f3)
+        
+        # Update version.json with the new version
+        jq --arg major "$MAJOR" --arg minor "$MINOR" --arg patch "$PATCH" \
+           '.version.major = ($major | tonumber) | .version.minor = ($minor | tonumber) | .version.patch = ($patch | tonumber)' \
+           version.json > version.json.tmp && mv version.json.tmp version.json
+           
+        # Update mod_info.json version
+        jq --arg version "$VERSION_NUMBER" '.version = $version' \
+           mod_info.json > mod_info.json.tmp && mv mod_info.json.tmp mod_info.json
+    
+    - name: Generate changelog.txt from CHANGELOG.md
+      run: |
+        # Extract the latest version's changelog
+        sed -n '/^## v/,/^## v/p' CHANGELOG.md | sed '$d' > changelog.txt
+        # If no second version header found, get everything after first version header
+        if [ ! -s changelog.txt ]; then
+          sed -n '/^## v/,$p' CHANGELOG.md > changelog.txt
+        fi
+        
+    - name: Validate mod structure
+      run: |
+        echo "Validating mod structure..."
+        
+        # Check required files exist
+        for file in mod_info.json version.json data/config/settings.json; do
+          if [ ! -f "$file" ]; then
+            echo "ERROR: Required file $file is missing"
+            exit 1
+          fi
+        done
+        
+        # Check that mod_info.json is valid JSON
+        if ! jq empty mod_info.json; then
+          echo "ERROR: mod_info.json is not valid JSON"
+          exit 1
+        fi
+        
+        # Check that settings.json is valid JSON
+        if ! jq empty data/config/settings.json; then
+          echo "ERROR: settings.json is not valid JSON"
+          exit 1
+        fi
+        
+        echo "Mod structure validation passed!"
+        
+    - name: Create mod package
+      run: |
+        # Create the mod directory structure
+        MOD_NAME="Command-Saturation-Protocol-${{ steps.get_version.outputs.VERSION }}"
+        mkdir -p "$MOD_NAME"
+        
+        # Copy only the files needed for the mod to run
+        cp mod_info.json "$MOD_NAME/"
+        cp version.json "$MOD_NAME/"
+        cp README.md "$MOD_NAME/"
+        cp changelog.txt "$MOD_NAME/"
+        cp -r data "$MOD_NAME/"
+        cp -r graphics "$MOD_NAME/"
+        
+        # Create the zip file
+        zip -r "${MOD_NAME}.zip" "$MOD_NAME"
+        
+        echo "Created release package: ${MOD_NAME}.zip"
+        ls -la "${MOD_NAME}.zip"
+        
+    - name: Create Release
+      uses: actions/create-release@v1
+      id: create_release
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ steps.get_version.outputs.VERSION }}
+        release_name: Command Saturation Protocol ${{ steps.get_version.outputs.VERSION }}
+        body_path: changelog.txt
+        draft: false
+        prerelease: false
+        
+    - name: Upload Release Zip
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./Command-Saturation-Protocol-${{ steps.get_version.outputs.VERSION }}.zip
+        asset_name: Command-Saturation-Protocol-${{ steps.get_version.outputs.VERSION }}.zip
+        asset_content_type: application/zip
+        
+    - name: Upload version.json for auto-update
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./version.json
+        asset_name: version.json
+        asset_content_type: application/json
+        
+    - name: Upload changelog.txt for auto-update
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./changelog.txt
+        asset_name: changelog.txt
+        asset_content_type: text/plain
