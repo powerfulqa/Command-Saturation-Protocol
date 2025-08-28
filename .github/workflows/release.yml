@@ -19,19 +19,22 @@ jobs:
       id: get_version
       run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
       
-    - name: Update version.json
+    - name: Update .version file
       run: |
         VERSION_NUMBER=$(echo "${{ steps.get_version.outputs.VERSION }}" | sed 's/v//')
         MAJOR=$(echo $VERSION_NUMBER | cut -d. -f1)
         MINOR=$(echo $VERSION_NUMBER | cut -d. -f2)
         PATCH=$(echo $VERSION_NUMBER | cut -d. -f3)
         
-        # Update version.json with correct URLs only (keep existing version numbers)
-        jq --arg version "$VERSION_NUMBER" \
-           '.masterVersionFile = "https://raw.githubusercontent.com/powerfulqa/Command-Saturation-Protocol/main/version.json" |
+        # Update .version file with correct URLs and version numbers
+        jq --arg version "$VERSION_NUMBER" --arg major "$MAJOR" --arg minor "$MINOR" --arg patch "$PATCH" \
+           '.masterVersionFile = "https://raw.githubusercontent.com/powerfulqa/Command-Saturation-Protocol/main/Command-Saturation-Protocol.version" |
+            .modVersion.major = ($major | tonumber) |
+            .modVersion.minor = ($minor | tonumber) |
+            .modVersion.patch = ($patch | tonumber) |
             .directDownloadURL = "https://github.com/powerfulqa/Command-Saturation-Protocol/releases/download/v\($version)/Command-Saturation-Protocol-v\($version).zip" |
             .changelogURL = "https://raw.githubusercontent.com/powerfulqa/Command-Saturation-Protocol/main/CHANGELOG.md"' \
-           version.json > version.json.tmp && mv version.json.tmp version.json
+           Command-Saturation-Protocol.version > Command-Saturation-Protocol.version.tmp && mv Command-Saturation-Protocol.version.tmp Command-Saturation-Protocol.version
            
         # Keep mod_info.json version unchanged
     
@@ -49,7 +52,7 @@ jobs:
         echo "Validating mod structure..."
         
         # Check required files exist
-        for file in mod_info.json version.json data/config/settings.json; do
+        for file in mod_info.json Command-Saturation-Protocol.version data/config/settings.json; do
           if [ ! -f "$file" ]; then
             echo "ERROR: Required file $file is missing"
             exit 1
@@ -78,7 +81,7 @@ jobs:
         
         # Copy only the files needed for the mod to run
         cp mod_info.json "$MOD_NAME/"
-        cp version.json "$MOD_NAME/"
+        cp Command-Saturation-Protocol.version "$MOD_NAME/"
         cp README.md "$MOD_NAME/"
         cp changelog.txt "$MOD_NAME/"
         cp -r data "$MOD_NAME/"

@@ -1,0 +1,17 @@
+{
+    "masterVersionFile": "https://raw.githubusercontent.com/powerfulqa/Command-Saturation-Protocol/main/Command-Saturation-Protocol.version",
+    "modVersion": {
+        "major": 0,
+        "minor": 1,
+        "patch": 0
+    },
+    "modName": "Command-Saturation-Protocol",
+    "modThreadId": null,
+    
+    # Link towards a direct download, fetched from the online version file
+    "directDownloadURL": "https://github.com/powerfulqa/Command-Saturation-Protocol/releases/download/v0.1.0/Command-Saturation-Protocol-v0.1.0.zip",
+    
+    # Link towards a directly accessible text file, which can be used to display a changelog ingame, is fetched from the online version file.
+    # The new line will highlight any line that begins with "Version"
+    "changelogURL": "https://raw.githubusercontent.com/powerfulqa/Command-Saturation-Protocol/main/CHANGELOG.md"
+}
