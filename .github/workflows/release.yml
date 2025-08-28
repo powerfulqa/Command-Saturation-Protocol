@@ -89,43 +89,24 @@ jobs:
         ls -la "${MOD_NAME}.zip"
         
     - name: Create Release
-      uses: actions/create-release@v1
+      uses: softprops/action-gh-release@v1
       id: create_release
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: ${{ steps.get_version.outputs.VERSION }}
-        release_name: Command Saturation Protocol ${{ steps.get_version.outputs.VERSION }}
+        name: Command Saturation Protocol ${{ steps.get_version.outputs.VERSION }}
         body_path: changelog.txt
         draft: false
         prerelease: false
         
-    - name: Upload Release Zip
-      uses: actions/upload-release-asset@v1
+    - name: Upload Release Assets
+      uses: softprops/action-gh-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./Command-Saturation-Protocol-${{ steps.get_version.outputs.VERSION }}.zip
-        asset_name: Command-Saturation-Protocol-${{ steps.get_version.outputs.VERSION }}.zip
-        asset_content_type: application/zip
-        
-    - name: Upload version.json for auto-update
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./version.json
-        asset_name: version.json
-        asset_content_type: application/json
-        
-    - name: Upload changelog.txt for auto-update
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./changelog.txt
-        asset_name: changelog.txt
-        asset_content_type: text/plain
+        tag_name: ${{ steps.get_version.outputs.VERSION }}
+        files: |
+          ./Command-Saturation-Protocol-${{ steps.get_version.outputs.VERSION }}.zip
+          ./version.json
+          ./changelog.txt
