@@ -28,7 +28,8 @@ jobs:
         
         # Update version.json with correct URLs only (keep existing version numbers)
         jq --arg version "$VERSION_NUMBER" \
-           '.masterVersionFile = "https://github.com/powerfulqa/Command-Saturation-Protocol/releases/download/v\($version)/Command-Saturation-Protocol-v\($version).zip" |
+           '.masterVersionFile = "https://raw.githubusercontent.com/powerfulqa/Command-Saturation-Protocol/main/version.json" |
+            .directDownloadURL = "https://github.com/powerfulqa/Command-Saturation-Protocol/releases/download/v\($version)/Command-Saturation-Protocol-v\($version).zip" |
             .changelogURL = "https://raw.githubusercontent.com/powerfulqa/Command-Saturation-Protocol/main/CHANGELOG.md"' \
            version.json > version.json.tmp && mv version.json.tmp version.json
            
