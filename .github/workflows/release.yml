@@ -26,17 +26,12 @@ jobs:
         MINOR=$(echo $VERSION_NUMBER | cut -d. -f2)
         PATCH=$(echo $VERSION_NUMBER | cut -d. -f3)
         
-        # Update version.json with the new version and correct URLs
-        jq --arg major "$MAJOR" --arg minor "$MINOR" --arg patch "$PATCH" \
-           --arg version "$VERSION_NUMBER" \
-           '.version.major = ($major | tonumber) | .version.minor = ($minor | tonumber) | .version.patch = ($patch | tonumber) | 
-            .masterVersionFile = "https://github.com/powerfulqa/Command-Saturation-Protocol/releases/latest/download/version.json" |
+        # Update version.json with correct URLs only (keep existing version numbers)
+        jq '.masterVersionFile = "https://github.com/powerfulqa/Command-Saturation-Protocol/releases/latest/download/version.json" |
             .changelogURL = "https://github.com/powerfulqa/Command-Saturation-Protocol/releases/latest/download/changelog.txt"' \
            version.json > version.json.tmp && mv version.json.tmp version.json
            
-        # Update mod_info.json version
-        jq --arg version "$VERSION_NUMBER" '.version = $version' \
-           mod_info.json > mod_info.json.tmp && mv mod_info.json.tmp mod_info.json
+        # Keep mod_info.json version unchanged
     
     - name: Generate changelog.txt from CHANGELOG.md
       run: |
