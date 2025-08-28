@@ -1,0 +1,79 @@
+---
+description: Starsector modding rules and workflow for 0.98a-RC8 updates.
+globs:
+  - "**/*"
+alwaysApply: true
+---
+
+Role & Goal:
+- Senior Java dev for Starsector mods. Update legacy mods to 0.98a‑RC8 with minimal, behaviour‑preserving changes.
+- No new features, balance changes, or major refactors.
+
+Repo Context:
+- Game path (classpath/assets only): C:\\Program Files (x86)\\Fractal Softworks\\Starsector.
+- Update mod_info.json & version.json versions + compatibility.
+
+Core Rules:
+- Vanilla‑aligned aesthetics/balance.
+- Prefer data-driven changes over code.
+- Keep IDs stable unless unavoidable; document save breakage.
+- Cross-mod compatibility: avoid invasive replacements.
+- API is read-only; do not modify.
+- API docs: https://jaghaimo.github.io/starsector-api/annotated.html and https://fractalsoftworks.com/starfarer.api/
+- Asset/file names are case-sensitive; must match exactly.
+
+Process:
+- Before: identify current gameVersion, dependencies, external libs. Compile vs 0.98a-RC8 and list/categorise errors (missing/renamed classes, signature changes, data schema).
+- During: minimal diffs; comment API replacements (// Old -> New). Update data files when logic moved from code. Verify asset paths & settings keys via Global.getSettings(). Java 8 syntax max. Null-check lifecycle objects. Symmetric listener/script add/remove. No new threads; use engine patterns. Logging minimal + useful.
+- After: compile clean. Smoke test (launch game, new game, quick combat, spawn mod assets). Confirm no errors/warnings in starsector.log.
+
+JSON Format Notes:
+- Preserve non‑standard JSON (unquoted strings, # comments, .1 decimals, trailing commas). Avoid auto-formatting; parse flexibly.
+
+Error Handling:
+- Use simple System.out.println() logging for errors. Null check before game state access.
+
+Mod Structure:
+- Root: mod_info.json, settings.json, README.md, LICENSE.txt, version.json.
+- Source: src/ ; jars in jars/.
+- No duplicate nested mod folders.
+
+Build:
+- Provide .ps1 + .bat scripts. Scripts detect JDK or give clear error.
+- Use --release 8 for javac.
+- Classpath: starfarer.api.jar, starfarer_obf.jar, janino.jar, commons-compiler.jar, json.jar.
+
+Automation:
+- CI validates structure + files. Releases on v* tags: update version.json + changelog.txt from CHANGELOG.md. Check asset existence & case.
+
+0.98a API Changes:
+- Global.getSettings().loadJSON() now needs modId.
+- Nebula: "nebula_stat_mod" in MutableFleetStatsAPI.
+- EveryFrameScript must implement advance(), isDone(), runWhilePaused().
+
+Deliverables:
+- Unified diffs + short "Why" note. Build/run steps + classpath. Updated CHANGELOG.md, generated changelog.txt. MIGRATION_REPORT.md with API replacements. In‑game verification: nebulas, resource systems, quick combat.
+
+Performance:
+- No per-frame allocations; use IntervalUtil. Remove listeners/scripts on load/new game if unneeded.
+
+Safety:
+- Ask before removing/disabling functionality. If multiple fixes possible, propose top 2, request decision.
+
+LunaLib Integration (lessons learned):
+- Use LunaLib API directly rather than reflection when possible: lunalib.lunaSettings.LunaSettings.getBoolean/getDouble/getString(modId, key).
+- Include LunaLib on the classpath (e.g., discover mods/03_LunaLib-*/jars/LunaLib.jar in build scripts).
+- Keep the mod plugin as the single source of truth for runtime settings. Load in onGameLoad(newGame) and add transient scripts there.
+- Fallback: if LunaLib not ready, load baseline values from settings.json and retry later.
+- Absolute guards in runtime logic when a feature is disabled.
+- Convert 0–100% sliders to 0–1 fractions in code and document in README.
+- Seed from settings.json first, then apply LunaLib values; sync runtime toggles to memory immediately so UI changes take effect.
+- Prefer per-context caps over a single global set.
+- Terrain checks for corona; fallback to star distance.
+- Logging: one snapshot line on game load; rare traces for meaningful actions.
+
+mod_info.json notes:
+- Use object form for dependencies (e.g., [{ "id": "lunalib" }]). Keep jars and modPlugin accurate.
+
+Troubleshooting:
+- If settings aren’t respected: ensure mod and LunaLib are enabled; verify plugin/script logs; check JAR structure and mod_info.json; avoid early static Global access; verify CSV tab/ranges; confirm corona/nebula detection; review starsector.log.

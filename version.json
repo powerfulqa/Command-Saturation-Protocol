@@ -1,0 +1,10 @@
+{
+  "modName": "Command-Saturation-Protocol",
+  "modId": "command_saturation_protocol",
+  "author": "PowerfulQA",
+  "version": { "major": 0, "minor": 1, "patch": 0 },
+  "gameVersion": "0.98a-RC8",
+  "masterVersionFile": "https://example.com/command-saturation-protocol/version.json",
+  "changelogURL": "https://example.com/command-saturation-protocol/changelog.txt"
+}
+

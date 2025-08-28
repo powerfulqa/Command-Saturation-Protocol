@@ -1,0 +1,7 @@
+{
+  "maxBattleSize": 800,
+  "defaultBattleSize": 800,
+  "minFractionOfBattleSizeForSmallerSide": 0.4,
+  "maxShipsInFleet": 50
+}
+

@@ -1,0 +1,6 @@
+fieldID,fieldName,fieldType,defaultValue,secondaryValue,fieldDescription,minValue,maxValue,tab
+header_info,How To Change,Header,,,Edit data/config/settings.json and restart the game.,,,Gameplay
+text_bs,Battle Size (loaded),Text,600,,Values shown here are the currently loaded settings.,,,Gameplay
+text_frac,Smaller-side DP fraction (loaded),Text,0.4,,Values shown here are the currently loaded settings.,,,Gameplay
+text_ships,Max ships in fleet (loaded),Text,50,,Values shown here are the currently loaded settings.,,,Gameplay
+
