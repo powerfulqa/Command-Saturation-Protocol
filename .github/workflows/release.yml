@@ -27,8 +27,9 @@ jobs:
         PATCH=$(echo $VERSION_NUMBER | cut -d. -f3)
         
         # Update version.json with correct URLs only (keep existing version numbers)
-        jq '.masterVersionFile = "https://github.com/powerfulqa/Command-Saturation-Protocol/releases/latest/download/version.json" |
-            .changelogURL = "https://github.com/powerfulqa/Command-Saturation-Protocol/releases/latest/download/changelog.txt"' \
+        jq --arg version "$VERSION_NUMBER" \
+           '.masterVersionFile = "https://github.com/powerfulqa/Command-Saturation-Protocol/releases/download/v\($version)/Command-Saturation-Protocol-v\($version).zip" |
+            .changelogURL = "https://github.com/powerfulqa/Command-Saturation-Protocol/blob/main/CHANGELOG.md"' \
            version.json > version.json.tmp && mv version.json.tmp version.json
            
         # Keep mod_info.json version unchanged
