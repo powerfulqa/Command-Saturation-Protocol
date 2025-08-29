@@ -3,7 +3,7 @@
   "name": "Command Saturation Protocol",
   "author": "PowerfulQA",
   "utility": true,
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Raises fleet ship cap and battle size limits to allow larger engagements.",
   "gameVersion": "0.98a-RC8",
   "icon": "graphics/increased_defenses.png",

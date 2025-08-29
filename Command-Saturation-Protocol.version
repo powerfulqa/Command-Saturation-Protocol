@@ -3,10 +3,10 @@
     "modVersion": {
         "major": "0",
         "minor": "1",
-        "patch": "0"
+        "patch": "1"
     },
     "modName": "Command-Saturation-Protocol",
 
-    "directDownloadURL": "https://github.com/powerfulqa/Command-Saturation-Protocol/releases/download/v0.1.0/Command-Saturation-Protocol-v0.1.0.zip",
+    "directDownloadURL": "https://github.com/powerfulqa/Command-Saturation-Protocol/releases/download/v0.1.1/Command-Saturation-Protocol-v0.1.1.zip",
     "changelogURL": "https://raw.githubusercontent.com/powerfulqa/Command-Saturation-Protocol/main/changelog.txt"
 }
