@@ -1,12 +1,12 @@
 {
     "masterVersionFile": "https://raw.githubusercontent.com/powerfulqa/Command-Saturation-Protocol/main/Command-Saturation-Protocol.version",
     "modVersion": {
-        "major": 0,
-        "minor": 1,
-        "patch": 0
+        "major": "0",
+        "minor": "1",
+        "patch": "0"
     },
     "modName": "Command-Saturation-Protocol",
-    "modThreadId": null,
+
     "directDownloadURL": "https://github.com/powerfulqa/Command-Saturation-Protocol/releases/download/v0.1.0/Command-Saturation-Protocol-v0.1.0.zip",
-    "changelogURL": "https://raw.githubusercontent.com/powerfulqa/Command-Saturation-Protocol/main/CHANGELOG.md"
+    "changelogURL": "https://raw.githubusercontent.com/powerfulqa/Command-Saturation-Protocol/main/changelog.txt"
 }

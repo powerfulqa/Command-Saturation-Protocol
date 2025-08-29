@@ -6,7 +6,7 @@
   "version": "0.1.0",
   "description": "Raises fleet ship cap and battle size limits to allow larger engagements.",
   "gameVersion": "0.98a-RC8",
-  "icon": "graphics/icon.png",
+  "icon": "graphics/increased_defenses.png",
   "dependencies": [
     { "id": "lunalib", "optional": true }
   ]

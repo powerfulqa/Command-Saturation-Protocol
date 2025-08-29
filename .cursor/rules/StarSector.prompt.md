@@ -154,12 +154,53 @@ Context: Fix ensured LunaLib settings are applied on game load/runtime and overr
   - `"dependencies": [{ "id": "lunalib" }]`
 - Keep `"jars": ["jars/YourMod.jar"]` and `"modPlugin": "your.package.ModPlugin"` accurate.
 
+### triOS Version Checker Integration (lessons learned)
+
+Context: triOS provides automatic version checking and update notifications for Starsector mods. For mods to work with triOS, they need specific file structure and format.
+
+#### Required Files for triOS Compatibility:
+- **`ModName.version`**: Main version file in mod root (e.g., `Command-Saturation-Protocol.version`)
+- **`data/config/version/version_files.csv`**: Registry file that tells triOS where to find the version file
+- **`changelog.txt`**: Changelog file that triOS can display (referenced by `changelogURL`)
+
+#### Critical Requirements:
+- **`version_files.csv` format**:
+  ```csv
+  version file
+  YourModName.version
+  ```
+- **`.version` file must include**:
+  - `masterVersionFile`: URL to online version file for update checking
+  - `modVersion`: Object with `"major"`, `"minor"`, `"patch"` as **strings** (not numbers)
+  - `modName`: Exact mod name
+  - `directDownloadURL`: Direct download link for updates
+  - `changelogURL`: Link to changelog (should point to `.txt` file)
+- **`mod_info.json` must have**:
+  - Valid `icon` path that points to existing file (broken icon references prevent triOS detection)
+  - Proper version format matching the `.version` file
+
+#### Common Issues:
+- **Missing `version_files.csv`**: triOS can't find version file without this registry
+- **Broken icon reference**: Invalid icon path in `mod_info.json` causes triOS to skip the mod entirely
+- **Number vs string versions**: Use `"major": "0"` not `"major": 0` in version files
+- **Wrong changelog format**: triOS expects `.txt` files, not `.md`
+
+#### Notes:
+- `modThreadId` is optional - mods work fine with `null` or without this field
+- Both GitHub and Google Drive URLs work for `masterVersionFile`
+- triOS will show horn icon and version checking when properly configured
+
 ### Troubleshooting checklist
-- If settings aren’t respected:
+- If settings aren't respected:
   - Confirm launcher shows the mod and LunaLib enabled.
   - Verify starsector.log has plugin/script lines (e.g., "[Ramscoop] Snapshot onGameLoad -> …").
   - If you see only `ScriptStore - Class [X] already loaded, skipping compilation` with no mod logs, check JAR structure and `mod_info.json` entries.
   - If values look inverted, ensure no early static access or duplicate sources of truth; runtime script should read fields from the plugin each frame.
   - Nebula detection: use `MutableFleetStatsAPI` with `"nebula_stat_mod"` marker.
   - If a LunaLib control appears in the wrong tab or with an unexpected range, fix the `tab` column and `minValue/maxValue` in `data/config/LunaSettings.csv` and rebuild.
-  - If corona fuel doesn’t run: confirm the log shows a "[Ramscoop] Corona mode:" line; if absent, verify terrain detection or adjust the fallback buffer around the star radius.
+  - If corona fuel doesn't run: confirm the log shows a "[Ramscoop] Corona mode:" line; if absent, verify terrain detection or adjust the fallback buffer around the star radius.
+- If triOS version checking doesn't work:
+  - Verify `data/config/version/version_files.csv` exists and references the correct `.version` file
+  - Check that icon path in `mod_info.json` points to existing file
+  - Ensure version numbers are strings in `.version` file: `"major": "0"` not `"major": 0`
+  - Confirm `changelogURL` points to accessible `.txt` file

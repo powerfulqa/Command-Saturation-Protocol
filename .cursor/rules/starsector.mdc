@@ -75,5 +75,13 @@ LunaLib Integration (lessons learned):
 mod_info.json notes:
 - Use object form for dependencies (e.g., [{ "id": "lunalib" }]). Keep jars and modPlugin accurate.
 
+triOS Version Checker Integration:
+- Required: `ModName.version` file + `data/config/version/version_files.csv` registry
+- Critical: valid icon path in mod_info.json (broken icons prevent triOS detection)
+- Format: version numbers as strings in .version file: `"major": "0"` not `"major": 0`
+- Files: changelog.txt (not .md), accessible masterVersionFile URL
+- Note: modThreadId is optional
+
 Troubleshooting:
-- If settings aren’t respected: ensure mod and LunaLib are enabled; verify plugin/script logs; check JAR structure and mod_info.json; avoid early static Global access; verify CSV tab/ranges; confirm corona/nebula detection; review starsector.log.
+- If settings aren't respected: ensure mod and LunaLib are enabled; verify plugin/script logs; check JAR structure and mod_info.json; avoid early static Global access; verify CSV tab/ranges; confirm corona/nebula detection; review starsector.log.
+- If triOS version checking fails: verify version_files.csv exists, check icon path validity, ensure string version format, confirm changelog.txt accessibility.
