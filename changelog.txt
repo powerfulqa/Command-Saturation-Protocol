@@ -1,11 +1,23 @@
-v0.1.1 - triOS Compatibility Fix
-- Fixed triOS version checker compatibility
+Changelog
+
+Version 0.2.0 (unreleased)
+Removed
+- The LunaLib panel. It only showed fixed text and never reflected or changed the real values; the game reads these settings once at startup, so in-game sliders cannot work. LunaLib is no longer listed as a dependency.
+
+Fixed
+- README is plain UTF-8 again and only describes what the mod does.
+- Version file uses numbers for major/minor/patch, as update checkers expect.
+- Removed a stray empty file named "increased_defenses.png)".
+
+Changed
+- One changelog (this file) used for TriOS, Version Checker and the GitHub release notes.
+- Release workflow checks that the tag, mod_info.json and the version file agree before publishing.
+
+Version 0.1.1 (2025-08-29)
+- Fixed TriOS version checker compatibility
 - Added missing data/config/version/version_files.csv registry file
 - Fixed broken icon reference in mod_info.json
-- Updated version file format for proper triOS detection
-- triOS now shows horn icon for changelog access and update notifications
+- Updated version file format for proper TriOS detection
 
-v0.1.0 - Initial release
-- Data-only mod that exposes higher caps for battle size and fleet roster.
-- Defaults match vanilla: maxBattleSize=400, minFractionOfBattleSizeForSmallerSide=0.4, maxShipsInFleet=30.
-- Optional LunaLib sliders to adjust values in-game (restart typically required).
+Version 0.1.0 (2025-08-28)
+- Initial release: raises maxBattleSize to 800 (default 400) and maxShipsInFleet to 50 (default 30).

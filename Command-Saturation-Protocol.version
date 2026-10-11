@@ -1,9 +1,9 @@
 {
     "masterVersionFile": "https://raw.githubusercontent.com/powerfulqa/Command-Saturation-Protocol/main/Command-Saturation-Protocol.version",
     "modVersion": {
-        "major": "0",
-        "minor": "1",
-        "patch": "1"
+        "major": 0,
+        "minor": 1,
+        "patch": 1
     },
     "modName": "Command-Saturation-Protocol",
 

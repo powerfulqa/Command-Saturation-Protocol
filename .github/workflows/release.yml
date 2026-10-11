@@ -1,107 +1,45 @@
-name: Create Release
+name: Release
 
 on:
   push:
-    tags:
-      - 'v*'
+    tags: ['v*']
+
+permissions:
+  contents: read
 
 jobs:
   release:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Get version from tag
-      id: get_version
-      run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
-      
-    - name: Update .version file
-      run: |
-        VERSION_NUMBER=$(echo "${{ steps.get_version.outputs.VERSION }}" | sed 's/v//')
-        MAJOR=$(echo $VERSION_NUMBER | cut -d. -f1)
-        MINOR=$(echo $VERSION_NUMBER | cut -d. -f2)
-        PATCH=$(echo $VERSION_NUMBER | cut -d. -f3)
-        
-        # Update .version file with correct URLs and version numbers
-        jq --arg version "$VERSION_NUMBER" --arg major "$MAJOR" --arg minor "$MINOR" --arg patch "$PATCH" \
-           '.masterVersionFile = "https://raw.githubusercontent.com/powerfulqa/Command-Saturation-Protocol/main/Command-Saturation-Protocol.version" |
-            .modVersion.major = ($major | tonumber) |
-            .modVersion.minor = ($minor | tonumber) |
-            .modVersion.patch = ($patch | tonumber) |
-            .directDownloadURL = "https://github.com/powerfulqa/Command-Saturation-Protocol/releases/download/v\($version)/Command-Saturation-Protocol-v\($version).zip" |
-            .changelogURL = "https://raw.githubusercontent.com/powerfulqa/Command-Saturation-Protocol/main/CHANGELOG.md"' \
-           Command-Saturation-Protocol.version > Command-Saturation-Protocol.version.tmp && mv Command-Saturation-Protocol.version.tmp Command-Saturation-Protocol.version
-           
-        # Keep mod_info.json version unchanged
-    
-    - name: Generate changelog.txt from CHANGELOG.md
-      run: |
-        # Extract the latest version's changelog
-        sed -n '/^## v/,/^## v/p' CHANGELOG.md | sed '$d' > changelog.txt
-        # If no second version header found, get everything after first version header
-        if [ ! -s changelog.txt ]; then
-          sed -n '/^## v/,$p' CHANGELOG.md > changelog.txt
-        fi
-        
-    - name: Validate mod structure
-      run: |
-        echo "Validating mod structure..."
-        
-        # Check required files exist
-        for file in mod_info.json Command-Saturation-Protocol.version data/config/settings.json; do
-          if [ ! -f "$file" ]; then
-            echo "ERROR: Required file $file is missing"
-            exit 1
-          fi
-        done
-        
-        # Check that mod_info.json is valid JSON
-        if ! jq empty mod_info.json; then
-          echo "ERROR: mod_info.json is not valid JSON"
-          exit 1
-        fi
-        
-        # Check that settings.json is valid JSON
-        if ! jq empty data/config/settings.json; then
-          echo "ERROR: settings.json is not valid JSON"
-          exit 1
-        fi
-        
-        echo "Mod structure validation passed!"
-        
-    - name: Create mod package
-      run: |
-        # Create the mod directory structure
-        MOD_NAME="Command-Saturation-Protocol-${{ steps.get_version.outputs.VERSION }}"
-        mkdir -p "$MOD_NAME"
-        
-        # Copy only the files needed for the mod to run
-        cp mod_info.json "$MOD_NAME/"
-        cp Command-Saturation-Protocol.version "$MOD_NAME/"
-        cp README.md "$MOD_NAME/"
-        cp changelog.txt "$MOD_NAME/"
-        cp -r data "$MOD_NAME/"
-        cp -r graphics "$MOD_NAME/"
-        
-        # Create the zip file
-        zip -r "${MOD_NAME}.zip" "$MOD_NAME"
-        
-        echo "Created release package: ${MOD_NAME}.zip"
-        ls -la "${MOD_NAME}.zip"
-        
-    - name: Create Release and Upload Assets
-      uses: softprops/action-gh-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ steps.get_version.outputs.VERSION }}
-        name: Command Saturation Protocol ${{ steps.get_version.outputs.VERSION }}
-        body_path: changelog.txt
-        files: |
-          ./Command-Saturation-Protocol-${{ steps.get_version.outputs.VERSION }}.zip
-        draft: false
-        prerelease: false
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      # Tag, mod_info.json, the version file (read by TriOS / Version Checker) and a dated
+      # changelog.txt entry must all agree, and the JSON files must parse.
+      - name: Check versions
+        run: |
+          V="${GITHUB_REF_NAME#v}"
+          jq empty data/config/settings.json
+          [ "$(jq -r .version mod_info.json)" = "$V" ] || { echo "::error::mod_info.json version is not $V"; exit 1; }
+          F=Command-Saturation-Protocol.version
+          [ "$(jq -r '"\(.modVersion.major).\(.modVersion.minor).\(.modVersion.patch)"' $F)" = "$V" ] || { echo "::error::$F modVersion is not $V"; exit 1; }
+          jq -r .directDownloadURL $F | grep -q "/v$V/Command-Saturation-Protocol-v$V.zip$" || { echo "::error::$F directDownloadURL is not for v$V"; exit 1; }
+          grep -qE "^Version $V \([0-9]{4}-[0-9]{2}-[0-9]{2}\)" changelog.txt || { echo "::error::changelog.txt needs 'Version $V (YYYY-MM-DD)'"; exit 1; }
+
+      - name: Package
+        run: |
+          D="Command-Saturation-Protocol"
+          mkdir "$D"
+          cp -r mod_info.json Command-Saturation-Protocol.version changelog.txt README.md data graphics "$D/"
+          zip -r "$D-$GITHUB_REF_NAME.zip" "$D"
+          # Release notes = this version's section of changelog.txt.
+          awk -v h="Version ${GITHUB_REF_NAME#v} " '/^Version /{p = index($0, h) == 1} p' changelog.txt > notes.txt
+
+      - uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2.6.2
+        with:
+          name: Command Saturation Protocol ${{ github.ref_name }}
+          files: Command-Saturation-Protocol-${{ github.ref_name }}.zip
+          body_path: notes.txt
